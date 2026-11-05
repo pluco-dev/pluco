@@ -1,4 +1,80 @@
-import type {Metadata} from "next"; import {Inter,Space_Grotesk} from "next/font/google"; import "./globals.css"; import {Navbar} from "@/components/navbar"; import {Footer} from "@/components/footer"; import {MotionProvider} from "@/components/motion-provider";
-const body=Inter({subsets:["latin"],variable:"--font-body"}); const heading=Space_Grotesk({subsets:["latin"],variable:"--font-heading"});
-export const metadata:Metadata={title:{default:"PLUCO | Mint, buy and sell art on Base",template:"%s | PLUCO"},description:"An open art market on Base. Anyone can register a collection, mint a piece or buy one."};
-export default function Layout({children}:{children:React.ReactNode}){return <html lang="en" className={`${body.variable} ${heading.variable}`}><body><MotionProvider><Navbar/>{children}<Footer/></MotionProvider></body></html>}
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
+import { MotionProvider } from "@/components/motion-provider";
+import { WalletProvider } from "@/components/wallet-provider";
+
+const body = localFont({
+  src: "../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+  variable: "--font-body",
+  weight: "100 900",
+});
+const heading = localFont({
+  src: "../node_modules/@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2",
+  variable: "--font-heading",
+  weight: "300 700",
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://ganiyucall911.github.io/pluco"),
+  title: {
+    default: "PLUCO | Mint, buy and sell art on Base",
+    template: "%s | PLUCO",
+  },
+  description:
+    "An open art market on Base. Anyone can register a collection, mint a piece or buy one.",
+  applicationName: "PLUCO",
+  openGraph: {
+    type: "website",
+    siteName: "PLUCO",
+    title: "PLUCO | Mint, buy and sell art on Base",
+    description:
+      "An open art market on Base. Anyone can register a collection, mint a piece or buy one.",
+    url: "/",
+    images: [
+      {
+        url: "https://ganiyucall911.github.io/pluco/og/pluco.png",
+        width: 1200,
+        height: 630,
+        alt: "PLUCO — an open art market on Base",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PLUCO | Mint, buy and sell art on Base",
+    description:
+      "An open art market on Base. Anyone can register a collection, mint a piece or buy one.",
+    images: ["https://ganiyucall911.github.io/pluco/og/pluco.png"],
+  },
+  alternates: { canonical: "/" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f6f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className={`${body.variable} ${heading.variable}`}>
+      <body>
+        <WalletProvider>
+          <MotionProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </MotionProvider>
+        </WalletProvider>
+      </body>
+    </html>
+  );
+}

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 const REGISTRY = process.env.NEXT_PUBLIC_PLUCO_REGISTRY || "";
 const MARKETPLACE = process.env.NEXT_PUBLIC_PLUCO_MARKETPLACE || "";
-const CHAIN_ID = Number(process.env.NEXT_PUBLIC_PLUCO_CHAIN_ID || 8453);
-const RPC = CHAIN_ID === 8453 ? "https://mainnet.base.org" : "https://sepolia.base.org";
+const CHAIN_ID = 8453; // Base mainnet only
+const RPC = "https://mainnet.base.org";
 
 const COLLECTION_COUNT = "0xd57f966b";
 const LISTING_COUNT = "0xa9b07c26";
@@ -51,17 +51,17 @@ export function ProtocolStats() {
 
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-none border border-white/[.08] bg-[#0E0E0E] p-6">
+      <div className="rounded-none border border-line bg-surface p-6">
         <p className="text-3xl font-semibold">{value(collections)}</p>
-        <p className="mt-2 text-xs uppercase tracking-[.2em] text-[#8C8C8C]">Collections registered</p>
+        <p className="mt-2 text-xs uppercase tracking-[.2em] text-mute">Collections registered</p>
       </div>
-      <div className="rounded-none border border-white/[.08] bg-[#0E0E0E] p-6">
+      <div className="rounded-none border border-line bg-surface p-6">
         <p className="text-3xl font-semibold">{value(listings)}</p>
-        <p className="mt-2 text-xs uppercase tracking-[.2em] text-[#8C8C8C]">Listings created</p>
+        <p className="mt-2 text-xs uppercase tracking-[.2em] text-mute">Listings created</p>
       </div>
-      <div className="rounded-none border border-white/[.08] bg-[#0E0E0E] p-6">
+      <div className="rounded-none border border-line bg-surface p-6">
         <p className="text-3xl font-semibold">2.5%</p>
-        <p className="mt-2 text-xs uppercase tracking-[.2em] text-[#8C8C8C]">Protocol fee, capped at 5%</p>
+        <p className="mt-2 text-xs uppercase tracking-[.2em] text-mute">Protocol fee, capped at 5%</p>
       </div>
     </div>
   );

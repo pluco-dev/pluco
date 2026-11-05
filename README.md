@@ -1,73 +1,102 @@
 # PLUCO — The NFT Ownership Network
 
 [![Build check](https://github.com/ganiyucall911/pluco/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/ganiyucall911/pluco/actions/workflows/build.yml)
+[![Deploy](https://github.com/ganiyucall911/pluco/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/ganiyucall911/pluco/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://ganiyucall911.github.io/pluco/)
 
-**Live demo:** https://ganiyucall911.github.io/pluco/
+**Live:** https://ganiyucall911.github.io/pluco/
 
-An NFT-first, editorial website built with Next.js 15, React 19, Tailwind CSS 4 and Framer Motion. It ships demo Collections, Creators, Community, Marketplace, Explore, Brand, About, Contact, Legal and Connect pages. All content is demo data from `lib/data.ts`; there is no wallet or blockchain connection.
+PLUCO is an open art market on Base: anyone can register a collection, mint a piece or buy one. This repository is the marketing site and product surface built with Next.js 16 (App Router), React 19, Tailwind CSS 4 and Framer Motion, exported as a fully static site.
+
+## Features
+
+- **Light and dark themes** driven by `prefers-color-scheme`, no toggle required and no flash on load
+- **Wallet connect** on Base mainnet only (chain 8453): MetaMask through EIP-6963 discovery plus WalletConnect for any other EVM wallet, with account change, network switch to Base and disconnect handling. No other chains are configured
+- **Responsive** from 360px to wide desktop, with a single shared content frame across pages
+- Editorial pages: collections, creators, marketplace, explore, mint, sell, protocol, verification, dashboard, community, brand, about, contact, legal
+- SEO: per-page titles, Open Graph and Twitter metadata, canonical URLs, `sitemap.xml` and `robots.txt`
+
+Wallet connection is read-only: it reports the address, network and balance. No PLUCO contracts are deployed yet, so nothing on this site transfers funds.
 
 ## Requirements
 
-- Node.js 20 or newer (tested with Node 20 in CI and Node 22 locally)
+- Node.js 20 or newer (see `.nvmrc`; CI runs Node 20)
 - npm 10 or newer
 
-## Install from a fresh clone
+## Local development
 
 ```sh
 git clone https://github.com/ganiyucall911/pluco.git
 cd pluco
-npm ci            # installs exact versions from package-lock.json (~15s)
-npm run dev       # http://localhost:3000 with hot reload
+npm ci        # exact versions from package-lock.json
+npm run dev   # http://localhost:3000
 ```
 
-### Production build
+To preview with the same base path as production:
 
 ```sh
-npm run build     # static export: prerenders every page into ./out
-npx serve out     # serve the exported site locally
+NEXT_PUBLIC_BASE_PATH=/pluco npm run dev
 ```
 
-The project uses `output: "export"` in `next.config.ts`, so `npm start` is not used. Set `NEXT_PUBLIC_BASE_PATH` to serve from a subpath (the demo uses `/pluco`).
+## Build and export
 
-Verified on a fresh clone: `npm ci` finished without errors, `npm run build` prerendered all routes (including 6 collection pages), and `npm start` served `/`, `/collections` and `/marketplace` with HTTP 200 and unknown paths with 404.
+```sh
+NEXT_PUBLIC_BASE_PATH=/pluco npm run build   # prerenders every route into ./out
+npx serve out                                # serve the export locally
+```
+
+The site uses `output: "export"` in `next.config.ts`, so there is no Node server in production and `npm start` is not part of the deploy path. Any static host works: Netlify, Cloudflare Pages, Vercel static, S3, or GitHub Pages.
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Start the dev server |
-| `npm run build` | Create a production build |
-| `npm start` | Serve the production build |
-| `npm run lint` | Run Next.js lint |
+| `npm run build` | Static export into `./out` |
+| `npm run lint` | Lint |
 
 ## Project structure
 
 ```
-app/          # routes: home, collections/[slug], creators, marketplace, community,
-              # explore, about, connect, brand, contact, legal, not-found
-components/   # navbar, footer, hero, cards, motion helpers
-lib/          # demo data and motion presets
+app/          # routes, layout, metadata, sitemap and robots
+components/   # navbar, footer, hero, cards, wallet UI, motion helpers
+lib/          # data, asset and motion helpers
 public/       # static assets
+contracts/    # Solidity sources
+docs/         # remediation and fee notes
 ```
 
-## Continuous integration
+## Launching a collection
 
-Every push to `main` and every pull request runs the **Build check** workflow (`.github/workflows/build.yml`): `npm ci`, `npm audit --audit-level=high`, then `npm run build`. The `build` job is a required status check on `main`, with strict mode (the branch must be up to date first) and administrators included.
+The site deploys collections itself — no server, no key handling:
 
-`/dashboard` shows the latest run with a badge that re-polls the Actions API every 30 seconds, plus a manual refresh.
+1. Open /launch and connect a wallet. It deploys to Base mainnet (chain 8453) only.
+2. Set name, symbol, supply, price, per-wallet limit and the mint fee.
+3. Sign once. The page shows the address, opens the sale, and prints the config.
 
-## Contributing
+The mint page reads addresses from public/config.json at runtime, so a new deployment
+only needs that one file updated — no rebuild, no redeploy of the site:
 
-1. Create a branch from `main`.
-2. Run `npm run build` locally before opening a pull request.
-3. Open a pull request; the build check must pass before merging.
+{ "chainId": 8453, "originals": "0x...", "registry": "", "marketplace": "" }
 
-## Dependency notes
+NEXT_PUBLIC_PLUCO_ART_CONTRACT and friends still override it at build time. The launch
+page encodes the constructor call itself, so the bytecode comes from
+public/contracts/PlucoOriginals.json, written by npm run compile in contracts/art.
 
-Next.js is pinned to `16.4.3`: earlier releases bundle a PostCSS version with known XSS and source-map path traversal advisories. `npm audit` must stay free of high-severity findings; see [docs/REMEDIATION.md](docs/REMEDIATION.md).
+### What the contract enforces
 
-## License
+- one-of-one tokens, each with its own metadata URI
+- price, supply and wallet limit fixed at deploy
+- 7.5% EIP-2981 royalty on every resale
+- primary mint fee to treasury, hard-capped at 10%
+- owner reserve minting without payment
 
-Released under the [MIT License](LICENSE).
+Verified end to end against a local EVM: deploy, sale gate, exact-price check,
+per-wallet limit, fee routing to treasury and the royalty maths.
+
+## Deployment
+
+Merging to `main` deploys automatically: `.github/workflows/deploy.yml` builds the static export and publishes `out/` to the `gh-pages` branch, which GitHub Pages serves.
+
+To deploy by hand: `npm run deploy` (builds, then publishes to `gh-pages`). It needs a `gh` login with push access to the repo.
+

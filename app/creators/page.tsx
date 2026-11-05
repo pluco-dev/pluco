@@ -1,46 +1,83 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHero } from "@/components/page-hero";
+import { Verified } from "@/components/verified";
 import { Reveal } from "@/components/reveal";
-import { Art } from "@/components/art";
-import { Button } from "@/components/button";
-import { creators } from "@/lib/data";
+import Image from "next/image";
+import { asset } from "@/lib/asset";
+import { ArrowUpRight } from "lucide-react";
 
-export const metadata: Metadata = { title: "Creators" };
+export const metadata: Metadata = { title: "Creator" };
+
+const LINKS = [
+  { label: "OpenSea", href: "https://opensea.io/pluco" },
+  { label: "GitHub", href: "https://github.com/ganiyucall911/pluco" },
+];
 
 export default function CreatorsPage() {
   return (
     <main>
       <PageHero
-        eyebrow="People"
-        title="The hands behind the work."
-        body="Artists, studios and sound designers building collections with a distinct point of view."
+        eyebrow="Creator"
+        title="PLUCO."
+        body="One name, everywhere the work is minted or listed. Nothing else attached to it."
       />
-      <section className="px-6 pb-24">
-        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {creators.map((c) => (
-            <Reveal key={c.name}>
-              <article className="group flex h-full flex-col overflow-hidden rounded-none border border-white/[.08] bg-[#111] transition duration-500 hover:-translate-y-1 hover:border-[#FFFFFF]/25">
-                <div className="aspect-[16/11]"><Art accent={c.accent} label={c.role.split(" · ")[0]} /></div>
-                <div className="flex flex-1 flex-col p-6">
-                  <h2 className="text-2xl font-semibold">{c.name}</h2>
-                  <p className="mt-2 text-sm text-[#A6A6A6]">{c.role}</p>
-                  <p className="mt-auto border-t border-white/[.07] pt-4 text-xs uppercase tracking-[.15em] text-[#6E6E6E]">{c.works}</p>
+      <section className="px-5 pb-24 pt-16 sm:px-6 sm:pt-20">
+        <div className="mx-auto max-w-[1132px]">
+          <Reveal>
+            <article className="border border-line bg-surface">
+              <div className="grid md:grid-cols-[380px_1fr]">
+                      <div className="flex aspect-square items-center justify-center border-b border-line bg-[#0a0a0a] md:aspect-auto md:min-h-[380px] md:border-b-0 md:border-r">
+                      <Image
+                        src={asset("/brand/pluco-white.png")}
+                        alt="PLUCO creator picture"
+                        width={2946}
+                        height={1474}
+                        className="h-auto w-[64%] max-w-[220px] object-contain"
+                      />
+                    </div>
+                <div className="flex flex-col p-8 sm:p-10">
+                  <p className="text-[11px] uppercase tracking-[.28em] text-faint">Creator name</p>
+                  <h2 className="mt-4 flex items-center gap-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+                    <span className="leading-none">PLUCO</span>
+                    <Verified size={26} />
+                  </h2>
+                  <p className="mt-5 max-w-xl text-[15px] leading-7 text-body">
+                    Digital artwork published on Base. Every mint, listing and sale is signed by this
+                    name and nothing else — no studio, no alias.
+                  </p>
+                  <dl className="mt-8 grid grid-cols-2 gap-y-5 border-t border-line pt-6 text-sm sm:grid-cols-3">
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-[.2em] text-faint">Network</dt>
+                      <dd className="mt-1">Base</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-[.2em] text-faint">Settlement</dt>
+                      <dd className="mt-1">ETH</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-[.2em] text-faint">Standard</dt>
+                      <dd className="mt-1">ERC-721</dd>
+                    </div>
+                  </dl>
+                  <div className="mt-9 flex flex-wrap gap-3">
+                    {LINKS.map((l) => (
+                      <a
+                        key={l.label}
+                        href={l.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="focus-ring inline-flex items-center gap-2 border border-line-strong px-5 py-3 text-[13px] transition hover:border-line-strong"
+                      >
+                        {l.label}
+                        <ArrowUpRight size={14} strokeWidth={1.75} />
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </article>
-            </Reveal>
-          ))}
+              </div>
+            </article>
+          </Reveal>
         </div>
-        <div className="mx-auto mt-16 max-w-7xl rounded-none border border-[#FFFFFF]/15 bg-[#0b1512] p-10 sm:flex sm:items-center sm:justify-between sm:gap-8">
-          <div>
-            <h2 className="text-2xl font-semibold">Creating with PLUCO?</h2>
-            <p className="mt-2 max-w-lg text-sm leading-6 text-[#A6A6A6]">Creator onboarding is part of the demo experience — no applications or sales are live.</p>
-          </div>
-          <div className="mt-6 shrink-0 sm:mt-0"><Button href="/contact">Get in touch</Button></div>
-        </div>
-        <p className="mx-auto mt-10 max-w-7xl text-sm text-[#6E6E6E]">
-          Looking for the full catalogue? <Link className="text-[#FFFFFF] hover:underline" href="/collections">Browse collections</Link>.
-        </p>
       </section>
     </main>
   );
